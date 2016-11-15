@@ -21,6 +21,15 @@ int sc_main(int argc, char *argv[]) {
 	cv::Mat src = cv::imread(path_frame);
 	sc_clock C1;
 	sc_signal <bool, SC_MANY_WRITERS> syncbus;
+	sc_signal <bool, SC_MANY_WRITERS> syncbusT;
+	sc_signal <bool, SC_MANY_WRITERS> syncVert;
+	sc_signal <bool, SC_MANY_WRITERS> syncHorz;
+
+	sc_fifo <int> rowsRGB2dilate;
+	sc_fifo <int> colsRGB2dilate;
+
+	sc_fifo <int> rowsRGB2dilate_T;
+	sc_fifo <int> colsRGB2dilate_T;
 
 	sc_fifo <int> lerToGrayR(src.cols*src.rows);
 	sc_fifo <int> lerToGrayG(src.cols*src.rows);
@@ -71,11 +80,13 @@ int sc_main(int argc, char *argv[]) {
 	sc_fifo <int> DifferenceHorzThreshold(src.cols);
 
 	simple_bus_arbiter arbiter("arbiter");
-	simple_bus_fast_mem mem_fast("mem_fast", 0x00, 0x7f);
+	simple_bus_slow_mem mem_slow("mem_slow", 0x00, 0xff, 1);
 	simple_bus bus("bus");
 	bus.clock(C1);
 	bus.arbiter_port(arbiter);
-	bus.slave_port(mem_fast);
+	bus.slave_port(mem_slow);
+	mem_slow.clock(C1);
+
 		
 
 	lerImagem lerImagem("lerImagem");
@@ -95,7 +106,24 @@ int sc_main(int argc, char *argv[]) {
 	lerImagem.o_COLS_S(lerToGrayCOLS_S);
 	lerImagem.o_ROWS_S(lerToGrayROWS_S);
 
-	RGB2Gray RGB2Gray_I("RGB2Gray_I", 1, 0x4c, false, 300);
+	RGB2Gray RGB2Gray_T("RGB2Gray_T", 1, 0x4c, false, 300);
+	RGB2Gray_T.clock(C1);
+	RGB2Gray_T.bus_port(bus);
+	RGB2Gray_T.sync(syncbusT);
+	//RGB2Gray_I.send(valid2fpga);
+	//RGB2Gray_I.receive(req2fpga);
+	RGB2Gray_T.fifo_pixelR(lerToGrayR_T);
+	RGB2Gray_T.fifo_pixelG(lerToGrayG_T);
+	RGB2Gray_T.fifo_pixelB(lerToGrayB_T);
+	//RGB2Gray_I.fifo_pixelGray(grayToDilatePixel);
+	RGB2Gray_T.i_COLS(lerToGrayCOLS_T);
+	RGB2Gray_T.i_ROWS(lerToGrayROWS_T);
+	RGB2Gray_T.cols_o(colsRGB2dilate_T);
+	RGB2Gray_T.rows_o(rowsRGB2dilate_T);
+	//RGB2Gray_I.o_COLS(grayToDilateCOLS);
+	//RGB2Gray_I.o_ROWS(grayToDilateROWS);
+
+	RGB2Gray RGB2Gray_I("RGB2Gray_I", 2, 0x2c, false, 300);
 	RGB2Gray_I.clock(C1);
 	RGB2Gray_I.bus_port(bus);
 	RGB2Gray_I.sync(syncbus);
@@ -107,6 +135,8 @@ int sc_main(int argc, char *argv[]) {
 	//RGB2Gray_I.fifo_pixelGray(grayToDilatePixel);
 	RGB2Gray_I.i_COLS(lerToGrayCOLS);
 	RGB2Gray_I.i_ROWS(lerToGrayROWS);
+	RGB2Gray_I.cols_o(colsRGB2dilate);
+	RGB2Gray_I.rows_o(rowsRGB2dilate);
 	//RGB2Gray_I.o_COLS(grayToDilateCOLS);
 	//RGB2Gray_I.o_ROWS(grayToDilateROWS);
 
@@ -120,7 +150,7 @@ int sc_main(int argc, char *argv[]) {
 	RGB2Gray_T.o_COLS(grayToDilateCOLS_T);
 	RGB2Gray_T.o_ROWS(grayToDilateROWS_T);*/
 	
-	sysDilate sysDilate_I("sysDilate_I", 1, 0x4c, false, 300);
+	sysDilate sysDilate_I("sysDilate_I", 2, 0x2c, false, 300);
 	sysDilate_I.clock(C1);
 	sysDilate_I.bus_port(bus);
 	sysDilate_I.sync(syncbus);
@@ -130,17 +160,26 @@ int sc_main(int argc, char *argv[]) {
 	//sysDilate_I.i_ROWS(grayToDilateROWS);
 	sysDilate_I.o_COLS(DilateToHistogramCOLS);
 	sysDilate_I.o_ROWS(DilateToHistogramROWS);
+	sysDilate_I.i_COLS(colsRGB2dilate);
+	sysDilate_I.i_ROWS(rowsRGB2dilate);
 	//sysDilate_I.receive(valid2fpga);
 	//sysDilate_I.send(req2fpga);
 
 
-	/*sysDilate sysDilate_T("sysDilate_T");
-	sysDilate_T.fifo_pixelGray(grayToDilatePixel_T);
+	sysDilate sysDilate_T("sysDilate_T", 1, 0x4c, false, 300);
+	sysDilate_T.clock(C1);
+	sysDilate_T.bus_port(bus);
+	sysDilate_T.sync(syncbusT);
+	//sysDilate_I.fifo_pixelGray(grayToDilatePixel);
 	sysDilate_T.fifo_pixelDilate(DilateToHistogramPixel_T);
-	sysDilate_T.i_COLS(grayToDilateCOLS_T);
-	sysDilate_T.i_ROWS(grayToDilateROWS_T);
+	//sysDilate_I.i_COLS(grayToDilateCOLS);
+	//sysDilate_I.i_ROWS(grayToDilateROWS);
 	sysDilate_T.o_COLS(DilateToHistogramCOLS_T);
 	sysDilate_T.o_ROWS(DilateToHistogramROWS_T);
+	sysDilate_T.i_COLS(colsRGB2dilate_T);
+	sysDilate_T.i_ROWS(rowsRGB2dilate_T);
+	//sysDilate_I.receive(valid2fpga);
+	//sysDilate_I.send(req2fpga);
 
 	difference_hist vect("vect");
 	vect.fifo_pixelDilate(DilateToHistogramPixel);
@@ -160,29 +199,42 @@ int sc_main(int argc, char *argv[]) {
 	horz.o_average(DifferenceHorzAverage);
 	horz.o_posi_max(DifferenceHorzPosiMax);
 
-	threshold threshold_vect("threshold_vect");
+	threshold threshold_vect("threshold_vect", 4, 0x6c, false, 300);
+	threshold_vect.clock(C1);
+	threshold_vect.sync(syncVert);
+	threshold_vect.bus_port(bus);
 	threshold_vect.fifoVectorDifference(DifferenceVect);
-	threshold_vect.fifoVectorDifferenceThreshold(DifferenceVectThreshold);
+	//threshold_vect.fifoVectorDifferenceThreshold(DifferenceVectThreshold);
 	threshold_vect.i_ROWS(DifferenceVectROWS);
 	threshold_vect.i_average(DifferenceVectAverage);
 	threshold_vect.i_posi_max(DifferenceVectPosiMax);
 
-	threshold threshold_horz("threshold_horz");
+	threshold threshold_horz("threshold_horz", 4, 0x9c, false, 300);
+	threshold_horz.clock(C1);
+	threshold_horz.sync(syncHorz);
+	threshold_horz.bus_port(bus);
 	threshold_horz.fifoVectorDifference(DifferenceHorz);
-	threshold_horz.fifoVectorDifferenceThreshold(DifferenceHorzThreshold);
+	//threshold_horz.fifoVectorDifferenceThreshold(DifferenceHorzThreshold);
 	threshold_horz.i_ROWS(DifferenceHorzROWS);
 	threshold_horz.i_average(DifferenceHorzAverage);
 	threshold_horz.i_posi_max(DifferenceHorzPosiMax);
 
-	segmentation segmentation("segmentation");
-	segmentation.fifoVectorDifferenceVertThreshold(DifferenceVectThreshold);
-	segmentation.fifoVectorDifferenceHorzThreshold(DifferenceHorzThreshold);
+	segmentation segmentation("segmentation", 4, 0x6c, 0x9c, false, 300);
+	segmentation.clock(C1);
+	segmentation.sync_horz(syncHorz);
+	segmentation.sync_vert(syncVert);
+	segmentation.bus_port(bus);
+	//segmentation.fifoVectorDifferenceVertThreshold(DifferenceVectThreshold);
+	//segmentation.fifoVectorDifferenceHorzThreshold(DifferenceHorzThreshold);
 	segmentation.i_ROWS(lerToGrayROWS_S);
 	segmentation.i_COLS(lerToGrayCOLS_S);
 	segmentation.fifo_pixelR(lerToGrayR_S);
 	segmentation.fifo_pixelG(lerToGrayG_S);
-	segmentation.fifo_pixelB(lerToGrayB_S);*/
+	segmentation.fifo_pixelB(lerToGrayB_S);
 	syncbus = false;
+	syncbusT = false;
+	syncHorz = false;
+	syncVert = false;
 	sc_start();
 
 	return 0;

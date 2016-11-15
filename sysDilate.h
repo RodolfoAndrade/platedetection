@@ -21,7 +21,7 @@ SC_MODULE(sysDilate) {
 	int p1, p2, p3, p4, p5, temp;
 	int LENGTH_COLS, LENGTH_ROWS;
 
-	//sc_fifo_in<int> i_COLS, i_ROWS;
+	sc_fifo_in<int> i_COLS, i_ROWS;
 	//sc_fifo_in<int> fifo_pixelGray;
 
 	sc_fifo_out<int> o_COLS, o_ROWS;

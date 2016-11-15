@@ -2,17 +2,17 @@
 
 void RGB2Gray::main_action() {
 
-	const unsigned int mylength = 3; // storage capacity/burst length in words
-	int mydata[mylength];
+	const unsigned int mylength = 1; // storage capacity/burst length in words
+	int mydata;
 	simple_bus_status status;
 
 	LENGTH_COLS = i_COLS.read();
 	LENGTH_ROWS = i_ROWS.read();
-	//o_COLS.write(LENGTH_COLS);
-	//o_ROWS.write(LENGTH_ROWS);
+	cols_o.write(LENGTH_COLS);
+	rows_o.write(LENGTH_ROWS);
 
-	mydata[0] = LENGTH_COLS;
-	mydata[1] = LENGTH_ROWS;
+	//mydata[0] = LENGTH_COLS;
+	//mydata[1] = LENGTH_ROWS;
 
 
 	cv::Mat src;
@@ -23,9 +23,9 @@ void RGB2Gray::main_action() {
 			g = fifo_pixelG.read();
 			b = fifo_pixelB.read();
 
-			mydata[0] = LENGTH_COLS;
-			mydata[1] = LENGTH_ROWS;
-			mydata[2] = (int)((4897 * r + 9617 * g + 1868 * b) >> 14);
+			//mydata[0] = LENGTH_COLS;
+			//[1] = LENGTH_ROWS;
+			mydata = (int)((4897 * r + 9617 * g + 1868 * b) >> 14);
 			
 			
 			//while (receive.read() == 0 && i != 0 && j != 0);
@@ -34,7 +34,7 @@ void RGB2Gray::main_action() {
 
 			//wait();
 			
-			status = bus_port->burst_write(m_unique_priority, mydata,
+			status = bus_port->burst_write(m_unique_priority, &mydata,
 				m_address, mylength, m_lock);
 
 			if (status == SIMPLE_BUS_OK)
@@ -43,8 +43,8 @@ void RGB2Gray::main_action() {
 			}
 			while (status == SIMPLE_BUS_ERROR) {
 				//wait();
-				cout << "DEU MERDA" << endl;
-				status = bus_port->burst_write(m_unique_priority, mydata,
+				cout << "ERROR!" << endl;
+				status = bus_port->burst_write(m_unique_priority, &mydata,
 					m_address, mylength, m_lock);
 			 }
 			sync.write(true); //avisar que escreveu
@@ -59,7 +59,9 @@ void RGB2Gray::main_action() {
 		}
 	}
 
-	cout << "Acabou RGB" << endl;
+	//cout << "Acabou RGB" << endl;
+
+
 	//cv::imshow(this->name(), src);
 	//cv::waitKey(0);
 }

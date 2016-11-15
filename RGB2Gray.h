@@ -22,6 +22,10 @@ SC_MODULE(RGB2Gray) {
 	sc_fifo_in<int> fifo_pixelR;
 	sc_fifo_in<int> fifo_pixelG;
 	sc_fifo_in<int> fifo_pixelB;
+
+	sc_fifo_out<int> rows_o;
+	sc_fifo_out<int> cols_o;
+
 	sc_inout<bool> sync;
 	//sc_out<sc_bit> send;
 	//sc_in<sc_bit> receive;
