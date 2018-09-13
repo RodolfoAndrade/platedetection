@@ -59,11 +59,7 @@ void RGB2Gray::main_action() {
 		}
 	}
 
-<<<<<<< HEAD
 	//cout << "Acabou RGB" << endl;
-=======
-	cout << "Acabou RGB" << endl;
->>>>>>> 10bccc3c8bd711bf3b6ec6d56ff7d9dea0fedb96
 
 
 	//cv::imshow(this->name(), src);

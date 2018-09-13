@@ -22,11 +22,8 @@ int sc_main(int argc, char *argv[]) {
 	sc_clock C1;
 	sc_signal <bool, SC_MANY_WRITERS> syncbus;
 	sc_signal <bool, SC_MANY_WRITERS> syncbusT;
-<<<<<<< HEAD
 	sc_signal <bool, SC_MANY_WRITERS> syncVert;
 	sc_signal <bool, SC_MANY_WRITERS> syncHorz;
-=======
->>>>>>> 10bccc3c8bd711bf3b6ec6d56ff7d9dea0fedb96
 
 	sc_fifo <int> rowsRGB2dilate;
 	sc_fifo <int> colsRGB2dilate;
@@ -109,11 +106,7 @@ int sc_main(int argc, char *argv[]) {
 	lerImagem.o_COLS_S(lerToGrayCOLS_S);
 	lerImagem.o_ROWS_S(lerToGrayROWS_S);
 
-<<<<<<< HEAD
 	RGB2Gray RGB2Gray_T("RGB2Gray_T", 1, 0x4c, false, 300);
-=======
-	RGB2Gray RGB2Gray_T("RGB2Gray_T", 3, 0x4c, false, 300);
->>>>>>> 10bccc3c8bd711bf3b6ec6d56ff7d9dea0fedb96
 	RGB2Gray_T.clock(C1);
 	RGB2Gray_T.bus_port(bus);
 	RGB2Gray_T.sync(syncbusT);
@@ -130,11 +123,7 @@ int sc_main(int argc, char *argv[]) {
 	//RGB2Gray_I.o_COLS(grayToDilateCOLS);
 	//RGB2Gray_I.o_ROWS(grayToDilateROWS);
 
-<<<<<<< HEAD
 	RGB2Gray RGB2Gray_I("RGB2Gray_I", 2, 0x2c, false, 300);
-=======
-	RGB2Gray RGB2Gray_I("RGB2Gray_I", 4, 0x2c, false, 300);
->>>>>>> 10bccc3c8bd711bf3b6ec6d56ff7d9dea0fedb96
 	RGB2Gray_I.clock(C1);
 	RGB2Gray_I.bus_port(bus);
 	RGB2Gray_I.sync(syncbus);
@@ -161,11 +150,7 @@ int sc_main(int argc, char *argv[]) {
 	RGB2Gray_T.o_COLS(grayToDilateCOLS_T);
 	RGB2Gray_T.o_ROWS(grayToDilateROWS_T);*/
 	
-<<<<<<< HEAD
 	sysDilate sysDilate_I("sysDilate_I", 2, 0x2c, false, 300);
-=======
-	sysDilate sysDilate_I("sysDilate_I", 4, 0x2c, false, 300);
->>>>>>> 10bccc3c8bd711bf3b6ec6d56ff7d9dea0fedb96
 	sysDilate_I.clock(C1);
 	sysDilate_I.bus_port(bus);
 	sysDilate_I.sync(syncbus);
@@ -181,11 +166,7 @@ int sc_main(int argc, char *argv[]) {
 	//sysDilate_I.send(req2fpga);
 
 
-<<<<<<< HEAD
 	sysDilate sysDilate_T("sysDilate_T", 1, 0x4c, false, 300);
-=======
-	sysDilate sysDilate_T("sysDilate_T", 3, 0x4c, false, 300);
->>>>>>> 10bccc3c8bd711bf3b6ec6d56ff7d9dea0fedb96
 	sysDilate_T.clock(C1);
 	sysDilate_T.bus_port(bus);
 	sysDilate_T.sync(syncbusT);
@@ -252,11 +233,8 @@ int sc_main(int argc, char *argv[]) {
 	segmentation.fifo_pixelB(lerToGrayB_S);
 	syncbus = false;
 	syncbusT = false;
-<<<<<<< HEAD
 	syncHorz = false;
 	syncVert = false;
-=======
->>>>>>> 10bccc3c8bd711bf3b6ec6d56ff7d9dea0fedb96
 	sc_start();
 
 	return 0;

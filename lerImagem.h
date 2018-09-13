@@ -6,7 +6,7 @@
 
 #define frame_rows 1080
 #define frame_cols 1920
-#define path_frame "arquivos/carro10.jpg"
+#define path_frame "arquivos/carro0.bmp"
 
 SC_MODULE(lerImagem) {
 	cv::Vec3b Pixel;
