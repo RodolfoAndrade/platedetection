@@ -23,9 +23,18 @@ SC_MODULE(RGB2Gray) {
 	sc_fifo_in<int> fifo_pixelG;
 	sc_fifo_in<int> fifo_pixelB;
 
+<<<<<<< HEAD
 	sc_fifo_out<int> rows_o;
 	sc_fifo_out<int> cols_o;
 
+=======
+<<<<<<< HEAD
+	sc_fifo_out<int> rows_o;
+	sc_fifo_out<int> cols_o;
+
+=======
+>>>>>>> 589759aec9f735a9f2dadb679d0bbdde22c9401f
+>>>>>>> 10bccc3c8bd711bf3b6ec6d56ff7d9dea0fedb96
 	sc_inout<bool> sync;
 	//sc_out<sc_bit> send;
 	//sc_in<sc_bit> receive;
@@ -39,11 +48,13 @@ SC_MODULE(RGB2Gray) {
 	RGB2Gray(sc_module_name name_
 		, unsigned int unique_priority
 		, unsigned int address
+		, unsigned int address_t
 		, bool lock
 		, int timeout)
 		: sc_module(name_)
 		, m_unique_priority(unique_priority)
 		, m_address(address)
+		, m_address_t(address)
 		, m_lock(lock)
 		, m_timeout(timeout)
 	{
@@ -59,6 +70,7 @@ SC_MODULE(RGB2Gray) {
 private:
 	unsigned int m_unique_priority;
 	unsigned int m_address;
+	unsigned int m_address_t;
 	bool m_lock;
 	int m_timeout;
 
